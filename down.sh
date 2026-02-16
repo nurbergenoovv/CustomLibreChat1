@@ -1,3 +1,3 @@
 echo "Stopping and removing containers..."
-dokcer compose -f docker-compose.yml down
+docker compose down
 echo "Containers stopped and removed."
