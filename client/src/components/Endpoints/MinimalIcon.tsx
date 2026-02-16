@@ -23,14 +23,14 @@ const MinimalIcon: React.FC<IconProps> = (props) => {
   }
 
   const endpointIcons = {
-    [EModelEndpoint.azureOpenAI]: {
-      icon: <AzureMinimalIcon className={iconClassName} />,
-      name: props.chatGptLabel ?? 'ChatGPT',
-    },
-    [EModelEndpoint.openAI]: {
-      icon: <OpenAIMinimalIcon className={iconClassName} />,
-      name: props.chatGptLabel ?? 'ChatGPT',
-    },
+    //[EModelEndpoint.azureOpenAI]: {
+    //  icon: <AzureMinimalIcon className={iconClassName} />,
+    //  name: props.chatGptLabel ?? 'ChatGPT',
+    //},
+    //[EModelEndpoint.openAI]: {
+    //  icon: <OpenAIMinimalIcon className={iconClassName} />,
+    //  name: props.chatGptLabel ?? 'ChatGPT',
+    //},
     [EModelEndpoint.google]: { icon: <GoogleMinimalIcon />, name: props.modelLabel ?? 'Google' },
     [EModelEndpoint.anthropic]: {
       icon: <AnthropicIcon className="icon-md shrink-0 dark:text-white" />,

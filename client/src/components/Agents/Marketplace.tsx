@@ -11,6 +11,7 @@ import { useDocumentTitle, useHasAccess, useLocalize, TranslationKeys } from '~/
 import { useGetEndpointsQuery, useGetAgentCategoriesQuery } from '~/data-provider';
 import MarketplaceAdminSettings from './MarketplaceAdminSettings';
 import { SidePanelProvider, useChatContext } from '~/Providers';
+import { useAgentsMapContext } from '~/Providers';
 import { SidePanelGroup } from '~/components/SidePanel';
 import { OpenSidebar } from '~/components/Chat/Menus';
 import { cn, clearMessagesCache } from '~/utils';
@@ -37,6 +38,7 @@ const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ className = '' }) =
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const { conversation, newConversation } = useChatContext();
+  const agentsMap = useAgentsMapContext();
 
   const isSmallScreen = useMediaQuery('(max-width: 768px)');
   const { navVisible, setNavVisible } = useOutletContext<ContextType>();
@@ -199,12 +201,28 @@ const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ className = '' }) =
 
   const handleNewChat = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (e.button === 0 && (e.ctrlKey || e.metaKey)) {
-      window.open('/c/new', '_blank');
+      const params = new URLSearchParams(window.location.search);
+      if (!params.get('agent_id') && agentsMap) {
+        const firstAgent = Object.keys(agentsMap)[0];
+        if (firstAgent) params.set('agent_id', firstAgent);
+      }
+      window.open(`/c/new${params.toString() ? `?${params.toString()}` : ''}`, '_blank');
       return;
     }
     clearMessagesCache(queryClient, conversation?.conversationId);
     queryClient.invalidateQueries([QueryKeys.messages]);
     newConversation();
+    // ensure URL contains agent_id if none present
+    const params = new URLSearchParams(window.location.search);
+    if (!params.get('agent_id') && agentsMap) {
+      const firstAgent = Object.keys(agentsMap)[0];
+      if (firstAgent) {
+        params.set('agent_id', firstAgent);
+        const newSearch = params.toString() ? `?${params.toString()}` : '';
+        navigate(`/c/new${newSearch}`);
+        return;
+      }
+    }
   };
 
   // Layout configuration for SidePanelGroup

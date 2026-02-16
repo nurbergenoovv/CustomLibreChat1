@@ -75,7 +75,7 @@ export const CustomMenu = React.forwardRef<HTMLDivElement, CustomMenuProps>(func
         <SearchableContext.Provider value={searchable}>
           {searchable ? (
             <>
-              <div className="sticky top-0 z-10 bg-inherit p-1">
+              {/* <div className="sticky top-0 z-10 bg-inherit p-1">
                 <div className="relative">
                   <Ariakit.Combobox
                     autoSelect
@@ -92,7 +92,7 @@ export const CustomMenu = React.forwardRef<HTMLDivElement, CustomMenuProps>(func
                     </label>
                   )}
                 </div>
-              </div>
+              </div> */}
               <Ariakit.ComboboxList className="p-0.5 pt-0">{children}</Ariakit.ComboboxList>
             </>
           ) : (

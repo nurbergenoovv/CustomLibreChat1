@@ -1,5 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
-import { LocalStorageKeys, QueryKeys } from 'librechat-data-provider';
+import { LocalStorageKeys, QueryKeys, isEphemeralAgentId } from 'librechat-data-provider';
 import {
   format,
   isToday,
@@ -12,6 +12,8 @@ import {
 } from 'date-fns';
 import type { TConversation, GroupedConversations } from 'librechat-data-provider';
 import type { InfiniteData } from '@tanstack/react-query';
+import { useAgentsMapContext } from '~/Providers/AgentsMapContext';
+import { useListAgentsQuery } from '~/data-provider';
 
 // Date group helpers
 export const dateKeys = {
@@ -280,11 +282,11 @@ export function updateConvoFieldsInfinite(
       pages: data.pages.map((page, pi) =>
         pi === pageIdx
           ? {
-              ...page,
-              conversations: page.conversations.map((c, ci) =>
-                ci === convoIdx ? { ...c, ...updatedConversation } : c,
-              ),
-            }
+            ...page,
+            conversations: page.conversations.map((c, ci) =>
+              ci === convoIdx ? { ...c, ...updatedConversation } : c,
+            ),
+          }
           : page,
       ),
     };
@@ -312,7 +314,17 @@ export function storeEndpointSettings(conversation: TConversation | null) {
   }
   const lastModel = JSON.parse(localStorage.getItem(LocalStorageKeys.LAST_MODEL) ?? '{}');
   lastModel[endpoint] = model;
-  localStorage.setItem(LocalStorageKeys.LAST_MODEL, JSON.stringify(lastModel));
+  localStorage.setItem(LocalStorageKeys.LAST_MODEL, JSON.stringify({}));
+
+  // Persist `agent_id__0` for the primary (index 0) conversation when available
+  // Store only non-ephemeral agent IDs so we don't persist transient values
+
+  console.log("[---------]Agents Map:");
+  // const agents = Object.values(agentsMap); // массив доступных агентов
+  const agentId = localStorage.getItem(`${LocalStorageKeys.AGENT_ID_PREFIX}0`);
+  if (agentId == null) {
+    localStorage.setItem(`${LocalStorageKeys.AGENT_ID_PREFIX}0`, agentId ? agentId : '');
+  }
 }
 
 // Add
@@ -394,9 +406,9 @@ export function updateConvoInAllQueries(
           pages: oldData.pages.map((page, pi) =>
             pi === pageIdx
               ? {
-                  ...page,
-                  conversations: page.conversations.map((c, ci) => (ci === convoIdx ? updated : c)),
-                }
+                ...page,
+                conversations: page.conversations.map((c, ci) => (ci === convoIdx ? updated : c)),
+              }
               : page,
           ),
         };

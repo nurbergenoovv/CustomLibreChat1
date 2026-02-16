@@ -123,16 +123,16 @@ const MessageEndpointIcon: React.FC<IconProps> = (props) => {
     [EModelEndpoint.assistants]: assistantsIcon,
     [EModelEndpoint.agents]: agentsIcon,
     [EModelEndpoint.azureAssistants]: assistantsIcon,
-    [EModelEndpoint.azureOpenAI]: {
-      icon: <AzureMinimalIcon size={size * 0.5555555555555556} />,
-      bg: 'linear-gradient(0.375turn, #61bde2, #4389d0)',
-      name: 'ChatGPT',
-    },
-    [EModelEndpoint.openAI]: {
-      icon: <GPTIcon size={size * 0.5555555555555556} />,
-      bg: getOpenAIColor(model),
-      name: 'ChatGPT',
-    },
+    //[EModelEndpoint.azureOpenAI]: {
+    //  icon: <AzureMinimalIcon size={size * 0.5555555555555556} />,
+    //  bg: 'linear-gradient(0.375turn, #61bde2, #4389d0)',
+    //  name: 'ChatGPT',
+    //},
+    //[EModelEndpoint.openAI]: {
+    //  icon: <GPTIcon size={size * 0.5555555555555556} />,
+    //  bg: getOpenAIColor(model),
+    //  name: 'ChatGPT',
+    //},
     [EModelEndpoint.google]: {
       icon: getGoogleIcon(model, size),
       name: getGoogleModelName(model),

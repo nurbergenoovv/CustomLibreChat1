@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { QueryKeys } from 'librechat-data-provider';
 import { useQueryClient } from '@tanstack/react-query';
 import { TooltipAnchor, NewChatIcon, MobileSidebar, Sidebar, Button } from '@librechat/client';
+import { useAgentsMapContext } from '~/Providers';
 import { CLOSE_SIDEBAR_ID, OPEN_SIDEBAR_ID } from '~/components/Chat/Menus/OpenSidebar';
 import { useLocalize, useNewConvo } from '~/hooks';
 import { clearMessagesCache } from '~/utils';
@@ -27,6 +28,7 @@ export default function NewChat({
   const navigate = useNavigate();
   const localize = useLocalize();
   const { conversation } = store.useCreateConversationAtom(index);
+  const agentsMap = useAgentsMapContext();
 
   const handleToggleNav = useCallback(() => {
     toggleNav();
@@ -39,13 +41,27 @@ export default function NewChat({
   const clickHandler: React.MouseEventHandler<HTMLButtonElement> = useCallback(
     (e) => {
       if (e.button === 0 && (e.ctrlKey || e.metaKey)) {
-        window.open('/c/new', '_blank');
+        const params = new URLSearchParams(window.location.search);
+        if (!params.get('agent_id') && agentsMap) {
+          const firstAgent = Object.keys(agentsMap)[0];
+          if (firstAgent) params.set('agent_id', firstAgent);
+        }
+        window.open(`/c/new${params.toString() ? `?${params.toString()}` : ''}`, '_blank');
         return;
       }
       clearMessagesCache(queryClient, conversation?.conversationId);
       queryClient.invalidateQueries([QueryKeys.messages]);
       newConvo();
-      navigate('/c/new', { state: { focusChat: true } });
+      {
+        const params = new URLSearchParams(window.location.search);
+        if (!params.get('agent_id') && agentsMap) {
+          const firstAgent = Object.keys(agentsMap)[0];
+          if (firstAgent) params.set('agent_id', firstAgent);
+        }
+        navigate(`/c/new${params.toString() ? `?${params.toString()}` : ''}`, {
+          state: { focusChat: true },
+        });
+      }
       if (isSmallScreen) {
         toggleNav();
       }

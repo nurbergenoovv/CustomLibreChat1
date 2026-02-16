@@ -2,13 +2,14 @@ import { LocalStorageKeys, TConversation, isUUID } from 'librechat-data-provider
 
 export function getLocalStorageItems() {
   const items = {
-    lastSelectedModel: localStorage.getItem(LocalStorageKeys.LAST_MODEL) ?? '',
+    lastSelectedModel: localStorage.getItem('') ?? '',
     lastSelectedTools: localStorage.getItem(LocalStorageKeys.LAST_TOOLS) ?? '',
     lastConversationSetup: localStorage.getItem(LocalStorageKeys.LAST_CONVO_SETUP + '_0') ?? '',
+    agentId0: localStorage.getItem(LocalStorageKeys.AGENT_ID_PREFIX + '0') ?? '',
   };
 
   const lastSelectedModel = items.lastSelectedModel
-    ? (JSON.parse(items.lastSelectedModel) as Record<string, string | undefined> | null)
+    ? ({} as Record<string, string | undefined> | null)
     : {};
   const lastSelectedTools = items.lastSelectedTools
     ? (JSON.parse(items.lastSelectedTools) as string[] | null)
@@ -21,6 +22,7 @@ export function getLocalStorageItems() {
     lastSelectedModel,
     lastSelectedTools,
     lastConversationSetup,
+    agentId0: items.agentId0 ?? '',
   };
 }
 

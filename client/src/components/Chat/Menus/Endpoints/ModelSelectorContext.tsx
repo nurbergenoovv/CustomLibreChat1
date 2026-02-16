@@ -1,6 +1,6 @@
 import debounce from 'lodash/debounce';
-import React, { createContext, useContext, useState, useMemo, useCallback } from 'react';
-import { EModelEndpoint, isAgentsEndpoint, isAssistantsEndpoint } from 'librechat-data-provider';
+import React, { createContext, useContext, useState, useMemo, useCallback, useEffect } from 'react';
+import { EModelEndpoint, isAgentsEndpoint, isAssistantsEndpoint, isEphemeralAgentId } from 'librechat-data-provider';
 import type * as t from 'librechat-data-provider';
 import type { Endpoint, SelectedValues } from '~/common';
 import {
@@ -230,6 +230,91 @@ export function ModelSelectorProvider({ children, startupConfig }: ModelSelector
     const announcement = localize('com_ui_model_selected', { 0: modelDisplayName });
     announcePolite({ message: announcement, isStatus: true });
   };
+
+  // Auto-select the first available agent when no selection exists (e.g., first login)
+  // Prefer agents from `agentsMap` (permission-filtered / available agents), fall back to `agents` list
+  useEffect(() => {
+    try {
+      // If we already have a selected endpoint that's NOT an agents endpoint, bail out.
+      if (selectedValues && selectedValues.endpoint) {
+        if (!(isAgentsEndpoint(selectedValues.endpoint) && !selectedValues.model)) return;
+      }
+
+      const agentsEndpoint = mappedEndpoints?.find((e) => isAgentsEndpoint(e.value));
+      if (!agentsEndpoint) return;
+
+      // Helper for cookie read/write
+      const cookieKey = 'agent_id__0';
+      const getCookie = (name: string) => {
+        if (typeof document === 'undefined') return null;
+        const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+        return match ? decodeURIComponent(match[2]) : null;
+      };
+      const setCookie = (name: string, value: string, days = 3650) => {
+        if (typeof document === 'undefined') return;
+        try {
+          const expires = new Date();
+          expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+          document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`;
+        } catch (e) {
+          // ignore
+        }
+      };
+
+      // If a cookie exists, prefer it (handles cases where localStorage was cleared)
+      const cookieAgent = getCookie(cookieKey);
+      if (cookieAgent && !isEphemeralAgentId(cookieAgent)) {
+        // verify agent still exists in agentsMap or agents list before selecting
+        const existsInMap = agentsMap ? cookieAgent in agentsMap : false;
+        const existsInList = agents ? agents.some((a) => a.id === cookieAgent && !isEphemeralAgentId(a.id)) : false;
+        if (existsInMap || existsInList) {
+          handleSelectModel(agentsEndpoint, cookieAgent);
+          // Ensure localStorage is in sync
+          try {
+            if (typeof window !== 'undefined' && window.localStorage) {
+              window.localStorage.setItem(cookieKey, cookieAgent);
+            }
+          } catch (e) {
+            // ignore
+          }
+          return;
+        }
+      }
+
+      // Prefer agents from agentsMap (these represent permission-filtered/available agents)
+      const mapIds = agentsMap ? Object.keys(agentsMap).filter((id) => !isEphemeralAgentId(id)) : [];
+      let firstAgentId: string | null = null;
+
+      if (mapIds.length > 0) {
+        firstAgentId = mapIds[0];
+      } else if (agents && agents.length > 0) {
+        const nonEphemeral = agents.find((a) => !isEphemeralAgentId(a.id));
+        firstAgentId = nonEphemeral?.id ?? null;
+      }
+
+      if (!firstAgentId) return;
+      handleSelectModel(agentsEndpoint, firstAgentId);
+
+      // On first visit save the chosen agent id under `agent_id__0` in localStorage and cookie
+      try {
+        const key = cookieKey;
+        if (typeof window !== 'undefined' && window.localStorage) {
+          // write to localStorage (best-effort)
+          try {
+            window.localStorage.setItem(key, firstAgentId);
+          } catch (e) {
+            // ignore
+          }
+        }
+        // always try to write cookie so the selection survives a localStorage clear
+        setCookie(key, firstAgentId);
+      } catch (e) {
+        // ignore storage errors (e.g., private mode)
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, [agentsMap, agents, mappedEndpoints, selectedValues, handleSelectModel]);
 
   const value = {
     // State

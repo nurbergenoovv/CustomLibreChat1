@@ -19,6 +19,7 @@ import {
   useSubmitMessage,
   useFocusChatEffect,
 } from '~/hooks';
+import { LocalStorageKeys } from 'librechat-data-provider';
 import { mainTextareaId, BadgeItem } from '~/common';
 import AttachFileChat from './Files/AttachFileChat';
 import FileFormChat from './Files/FileFormChat';
@@ -62,6 +63,7 @@ const ChatForm = memo(({ index = 0 }: { index?: number }) => {
   const [showMentionPopover, setShowMentionPopover] = useRecoilState(
     store.showMentionPopoverFamily(index),
   );
+  const agent = localStorage.getItem(`${LocalStorageKeys.AGENT_ID_PREFIX}0`);
 
   const { requiresKey } = useRequiresKey();
   const methods = useChatFormContext();
@@ -276,7 +278,7 @@ const ChatForm = memo(({ index = 0 }: { index?: number }) => {
                       (textAreaRef as React.MutableRefObject<HTMLTextAreaElement | null>).current =
                         e;
                     }}
-                    disabled={disableInputs || isNotAppendable}
+                    disabled={disableInputs || isNotAppendable || agent == ""}
                     onPaste={handlePaste}
                     onKeyDown={handleKeyDown}
                     onKeyUp={handleKeyUp}
@@ -286,6 +288,7 @@ const ChatForm = memo(({ index = 0 }: { index?: number }) => {
                     tabIndex={0}
                     data-testid="text-input"
                     rows={1}
+                    onChange={()=>{console.log("AGENT IS")}}
                     onFocus={() => {
                       handleFocusOrClick();
                       setIsTextAreaFocused(true);

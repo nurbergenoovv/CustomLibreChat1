@@ -10,10 +10,11 @@ import OpenAISettings from './OpenAI';
 const settings: { [key: string]: FC<TModelSelectProps> | undefined } = {
   [EModelEndpoint.assistants]: AssistantsSettings,
   [EModelEndpoint.azureAssistants]: AssistantsSettings,
-  [EModelEndpoint.agents]: OpenAISettings,
-  [EModelEndpoint.openAI]: OpenAISettings,
-  [EModelEndpoint.custom]: OpenAISettings,
-  [EModelEndpoint.azureOpenAI]: OpenAISettings,
+  // OpenAI/Azure mappings intentionally removed from client settings
+  //[EModelEndpoint.agents]: OpenAISettings,
+  //[EModelEndpoint.openAI]: OpenAISettings,
+  //[EModelEndpoint.custom]: OpenAISettings,
+  //[EModelEndpoint.azureOpenAI]: OpenAISettings,
   [EModelEndpoint.anthropic]: AnthropicSettings,
   [EModelEndpoint.bedrock]: BedrockSettings,
 };

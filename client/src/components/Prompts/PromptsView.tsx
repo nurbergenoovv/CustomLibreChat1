@@ -28,7 +28,7 @@ export default function PromptsView() {
     let timeoutId: ReturnType<typeof setTimeout>;
     if (!hasAccess) {
       timeoutId = setTimeout(() => {
-        navigate('/c/new');
+        navigate(`/c/new${window.location.search}`);
       }, 1000);
     }
     return () => {

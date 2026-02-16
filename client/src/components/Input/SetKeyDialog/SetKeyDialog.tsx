@@ -30,19 +30,17 @@ import { logger } from '~/utils';
 
 const endpointComponents = {
   [EModelEndpoint.google]: GoogleConfig,
-  [EModelEndpoint.openAI]: OpenAIConfig,
+  //[EModelEndpoint.openAI]: OpenAIConfig,
   [EModelEndpoint.custom]: CustomConfig,
-  [EModelEndpoint.azureOpenAI]: OpenAIConfig,
-  [EModelEndpoint.assistants]: OpenAIConfig,
+  //[EModelEndpoint.azureOpenAI]: OpenAIConfig,
+  //[EModelEndpoint.assistants]: OpenAIConfig,
   [EModelEndpoint.azureAssistants]: OpenAIConfig,
   default: OtherConfig,
 };
 
+// Keep a minimal form set; OpenAI/Azure endpoints removed from client dialog
 const formSet: Set<string> = new Set([
-  EModelEndpoint.openAI,
   EModelEndpoint.custom,
-  EModelEndpoint.azureOpenAI,
-  EModelEndpoint.assistants,
   EModelEndpoint.azureAssistants,
 ]);
 

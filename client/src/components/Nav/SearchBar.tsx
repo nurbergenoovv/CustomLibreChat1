@@ -5,6 +5,7 @@ import { Search, X } from 'lucide-react';
 import { QueryKeys } from 'librechat-data-provider';
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAgentsMapContext } from '~/Providers';
 import { useLocalize, useNewConvo } from '~/hooks';
 import { cn } from '~/utils';
 import store from '~/store';
@@ -26,13 +27,23 @@ const SearchBar = forwardRef((props: SearchBarProps, ref: React.Ref<HTMLDivEleme
 
   const { newConversation: newConvo } = useNewConvo();
   const [search, setSearchState] = useRecoilState(store.search);
+  const agentsMap = useAgentsMapContext();
+
+  const buildSearchWithAgent = () => {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.get('agent_id') && agentsMap && Object.keys(agentsMap).length > 0) {
+      params.set('agent_id', Object.keys(agentsMap)[0]);
+    }
+    const s = params.toString();
+    return s ? `?${s}` : '';
+  };
 
   const clearSearch = useCallback(
     (pathname?: string) => {
       if (pathname?.includes('/search') || pathname === '/c/new') {
         queryClient.removeQueries([QueryKeys.messages]);
         newConvo({ disableFocus: true });
-        navigate('/c/new');
+        navigate(`/c/new${buildSearchWithAgent()}`);
       }
     },
     [newConvo, navigate, queryClient],

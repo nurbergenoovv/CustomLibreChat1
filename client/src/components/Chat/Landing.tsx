@@ -1,6 +1,6 @@
 import { useMemo, useCallback, useState, useEffect, useRef } from 'react';
 import { easings } from '@react-spring/web';
-import { EModelEndpoint } from 'librechat-data-provider';
+import { EModelEndpoint, LocalStorageKeys } from 'librechat-data-provider';
 import { BirthdayIcon, TooltipAnchor, SplitText } from '@librechat/client';
 import { useChatContext, useAgentsMapContext, useAssistantsMapContext } from '~/Providers';
 import { useGetEndpointsQuery, useGetStartupConfig } from '~/data-provider';
@@ -107,6 +107,8 @@ export default function Landing({ centerFormOnLanding }: { centerFormOnLanding: 
   }, []);
 
   useEffect(() => {
+    // const firstAgent = Object.keys(agentsMap ? agentsMap : {})[0];
+    // localStorage.setItem(`${LocalStorageKeys.AGENT_ID_PREFIX}0`, firstAgent ? firstAgent : '');
     if (contentRef.current) {
       setContentHeight(contentRef.current.offsetHeight);
     }

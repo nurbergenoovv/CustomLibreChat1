@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { TooltipAnchor } from '@librechat/client';
-import { getConfigDefaults } from 'librechat-data-provider';
+import { getConfigDefaults, isAgentsEndpoint } from 'librechat-data-provider';
 import type { ModelSelectorProps } from '~/common';
 import {
   renderModelSpecs,
@@ -31,6 +31,7 @@ function ModelSelectorContent() {
     // Functions
     setSearchValue,
     setSelectedValues,
+    handleSelectModel,
     // Dialog
     keyDialogOpen,
     onOpenChange,
@@ -81,42 +82,26 @@ function ModelSelectorContent() {
 
   return (
     <div className="relative flex w-full max-w-md flex-col items-center gap-2">
-      <Menu
-        values={selectedValues}
-        onValuesChange={(values: Record<string, any>) => {
-          setSelectedValues({
-            endpoint: values.endpoint || '',
-            model: values.model || '',
-            modelSpec: values.modelSpec || '',
-          });
-        }}
-        onSearch={(value) => setSearchValue(value)}
-        combobox={<input id="model-search" placeholder=" " />}
-        comboboxLabel={localize('com_endpoint_search_models')}
-        trigger={trigger}
-      >
-        {searchResults ? (
-          renderSearchResults(searchResults, localize, searchValue)
-        ) : (
-          <>
-            {/* Render ungrouped modelSpecs (no group field) */}
-            {renderModelSpecs(
-              modelSpecs?.filter((spec) => !spec.group) || [],
-              selectedValues.modelSpec || '',
-            )}
-            {/* Render endpoints (will include grouped specs matching endpoint names) */}
-            {renderEndpoints(mappedEndpoints ?? [])}
-            {/* Render custom groups (specs with group field not matching any endpoint) */}
-            {renderCustomGroups(modelSpecs || [], mappedEndpoints ?? [])}
-          </>
-        )}
-      </Menu>
-      <DialogManager
-        keyDialogOpen={keyDialogOpen}
-        onOpenChange={onOpenChange}
-        endpointsConfig={endpointsConfig || {}}
-        keyDialogEndpoint={keyDialogEndpoint || undefined}
-      />
+      {/* Agent buttons shown outside the dropdown for quick selection */}
+      <div className="flex w-full gap-2">
+        {(() => {
+          const agentsEndpoint = (mappedEndpoints ?? []).find((e) => isAgentsEndpoint(e.value));
+          if (!agentsEndpoint || !agentsMap) return null;
+          const entries = Object.entries(agentsMap);
+          return entries.map(([id, a]) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => handleSelectModel(agentsEndpoint, id)}
+              className="flex items-center gap-2 rounded-md border border-border-light bg-surface px-3 py-1 text-sm text-text-primary hover:bg-surface-active-alt"
+            >
+              <span className="truncate">{a?.name ?? id}</span>
+            </button>
+          ));
+        })()}
+      </div>
+
+ 
     </div>
   );
 }
