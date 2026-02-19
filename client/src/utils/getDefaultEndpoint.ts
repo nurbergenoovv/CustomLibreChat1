@@ -48,6 +48,13 @@ const getEndpointFromLocalStorage = (endpointsConfig: TEndpointsConfig) => {
 
 const getDefinedEndpoint = (endpointsConfig: TEndpointsConfig) => {
   const endpoints = mapEndpoints(endpointsConfig);
+  
+  // Prioritize 'agents' endpoint if available
+  const agentsEndpoint = endpoints.find((e) => e === 'agents' && Object.hasOwn(endpointsConfig ?? {}, e));
+  if (agentsEndpoint) {
+    return agentsEndpoint;
+  }
+  
   return endpoints.find((e) => Object.hasOwn(endpointsConfig ?? {}, e));
 };
 

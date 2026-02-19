@@ -37,6 +37,7 @@ import useAssistantListMap from './Assistants/useAssistantListMap';
 import { useResetChatBadges } from './useChatBadges';
 import { useApplyModelSpecEffects } from './Agents';
 import { usePauseGlobalAudio } from './Audio';
+import { useAgentsMapContext } from '~/Providers';
 import { useHasAccess } from '~/hooks';
 import store from '~/store';
 
@@ -53,6 +54,7 @@ const useNewConvo = (index = 0) => {
   const clearAllLatestMessages = store.useClearLatestMessages(`useNewConvo ${index}`);
   const setSubmission = useSetRecoilState<TSubmission | null>(store.submissionByIndex(index));
   const { data: endpointsConfig = {} as TEndpointsConfig } = useGetEndpointsQuery();
+  const agentsMap = useAgentsMapContext();
 
   const hasAgentAccess = useHasAccess({
     permissionType: PermissionTypes.AGENTS,
@@ -191,12 +193,41 @@ const useNewConvo = (index = 0) => {
           }
 
           const models = modelsConfig?.[defaultEndpoint] ?? [];
+          
+          // Pre-select first agent if needed (before buildDefaultConvo)
+          if (
+            isAgentsEndpoint(defaultEndpoint) &&
+            !conversation.agent_id &&
+            agentsMap &&
+            Object.keys(agentsMap).length > 0
+          ) {
+            const firstAgentId = Object.keys(agentsMap)[0];
+            if (firstAgentId) {
+              conversation.agent_id = firstAgentId;
+              logger.log('conversation', 'Pre-selected first agent:', firstAgentId);
+            }
+          }
+          
           conversation = buildDefaultConvo({
             conversation,
             lastConversationSetup: activePreset as TConversation,
             endpoint: defaultEndpoint,
             models,
           });
+
+          // Ensure agent is still set after buildDefaultConvo
+          if (
+            isAgentsEndpoint(defaultEndpoint) &&
+            !conversation.agent_id &&
+            agentsMap &&
+            Object.keys(agentsMap).length > 0
+          ) {
+            const firstAgentId = Object.keys(agentsMap)[0];
+            if (firstAgentId) {
+              conversation.agent_id = firstAgentId;
+              logger.log('conversation', 'Post-selected first agent:', firstAgentId);
+            }
+          }
         }
 
         if (disableParams === true) {
@@ -249,7 +280,7 @@ const useNewConvo = (index = 0) => {
           state: disableFocus ? {} : { focusChat: true },
         });
       },
-    [endpointsConfig, defaultPreset, assistantsListMap, modelsQuery.data, hasAgentAccess],
+    [endpointsConfig, defaultPreset, assistantsListMap, modelsQuery.data, hasAgentAccess, agentsMap],
   );
 
   const newConversation = useCallback(

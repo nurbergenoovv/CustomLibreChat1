@@ -8,6 +8,7 @@ import {
   useChatFormContext,
   useAddedChatContext,
   useAssistantsMapContext,
+  useAgentsMapContext,
 } from '~/Providers';
 import {
   useTextarea,
@@ -82,6 +83,7 @@ const ChatForm = memo(({ index = 0 }: { index?: number }) => {
     setConversation: setAddedConvo,
   } = useAddedChatContext();
   const assistantMap = useAssistantsMapContext();
+  const agentsMap = useAgentsMapContext();
 
   const endpoint = useMemo(
     () => conversation?.endpointType ?? conversation?.endpoint,
@@ -96,6 +98,7 @@ const ChatForm = memo(({ index = 0 }: { index?: number }) => {
     () => (chatDirection != null ? chatDirection?.toLowerCase() === 'rtl' : false),
     [chatDirection],
   );
+  
   const invalidAssistant = useMemo(
     () =>
       isAssistantsEndpoint(endpoint) &&
@@ -103,10 +106,32 @@ const ChatForm = memo(({ index = 0 }: { index?: number }) => {
         !assistantMap?.[endpoint ?? '']?.[conversation?.assistant_id ?? '']),
     [conversation?.assistant_id, endpoint, assistantMap],
   );
-  const disableInputs = useMemo(
-    () => requiresKey || invalidAssistant,
-    [requiresKey, invalidAssistant],
+  
+  const invalidAgent = useMemo(
+    () =>
+      isAgentsEndpoint(endpoint) &&
+      (!(conversation?.agent_id ?? '') || !agentsMap?.[conversation?.agent_id ?? '']),
+    [conversation?.agent_id, endpoint, agentsMap],
   );
+  
+  const disableInputs = useMemo(
+    () => requiresKey || invalidAssistant || invalidAgent,
+    [requiresKey, invalidAssistant, invalidAgent],
+  );
+
+  useEffect(() => {
+    if (isAgentsEndpoint(endpoint)) {
+      console.log('ChatForm Agent Debug:', {
+        endpoint,
+        agent_id: conversation?.agent_id,
+        hasAgentsMap: !!agentsMap,
+        agentsMapKeys: agentsMap ? Object.keys(agentsMap) : [],
+        invalidAgent,
+        disableInputs,
+        requiresKey,
+      });
+    }
+  }, [endpoint, conversation?.agent_id, agentsMap, invalidAgent, disableInputs, requiresKey]);
 
   const handleContainerClick = useCallback(() => {
     /** Check if the device is a touchscreen */
@@ -278,7 +303,7 @@ const ChatForm = memo(({ index = 0 }: { index?: number }) => {
                       (textAreaRef as React.MutableRefObject<HTMLTextAreaElement | null>).current =
                         e;
                     }}
-                    disabled={disableInputs || isNotAppendable || agent == ""}
+                    disabled={disableInputs || isNotAppendable}
                     onPaste={handlePaste}
                     onKeyDown={handleKeyDown}
                     onKeyUp={handleKeyUp}

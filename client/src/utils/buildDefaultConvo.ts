@@ -73,8 +73,9 @@ const buildDefaultConvo = ({
     agentId &&
     (!defaultAgentId || isEphemeralAgentId(defaultAgentId))
   ) {
-    defaultConvo.agent_id = agentId;
-  }
+    defaultConvo.agent_id = agentId;  } else if (isAgentsEndpoint(endpoint) && !agentId && defaultAgentId && !isEphemeralAgentId(defaultAgentId)) {
+    // Keep the default agent if it exists and is not ephemeral
+    defaultConvo.agent_id = defaultAgentId;  }
 
   // Clear model for non-ephemeral agents - agents use their configured model internally
   clearModelForNonEphemeralAgent(defaultConvo);
