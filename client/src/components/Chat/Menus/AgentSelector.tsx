@@ -16,13 +16,13 @@ export default function AgentSelector() {
     return shouldShowAgentButtons() && agentsMap && Object.keys(agentsMap).length > 0;
   }, [agentsMap]);
 
+  const agents = useMemo(() => {
+    return Object.values(agentsMap ?? {}).slice(0, 3); // Show only first 3 agents
+  }, [agentsMap]);
+
   if (!shouldShow) {
     return null;
   }
-
-  const agents = useMemo(() => {
-    return Object.values(agentsMap).slice(0, 3); // Show only first 3 agents
-  }, [agentsMap]);
 
   const handleSelectAgent = (agent_id: string | undefined) => {
     if (agent_id) {
