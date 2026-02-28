@@ -8,6 +8,7 @@ logs
 *.log
 
 # Runtime data
+# Runtime data
 pids
 *.pid
 *.seed
@@ -29,6 +30,9 @@ coverage
 # translation services
 config/translations/stores/*
 client/src/localization/languages/*_missing_keys.json
+
+# Turborepo
+.turbo
 
 # Compiled Dirs (http://nodejs.org/api/addons.html)
 build/
