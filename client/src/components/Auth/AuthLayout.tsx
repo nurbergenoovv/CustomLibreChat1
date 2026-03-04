@@ -67,6 +67,9 @@ function AuthLayout({
             alt={localize('com_ui_logo', { 0: startupConfig?.appTitle ?? 'LibreChat' })}
           />
         </div>
+        <p className="mt-2 text-center text-sm font-medium tracking-wide text-gray-600 dark:text-gray-400">
+          центр исследований и разработок
+        </p>
       </BlinkAnimation>
       <DisplayError />
       <div className="absolute bottom-0 left-0 md:m-4">
