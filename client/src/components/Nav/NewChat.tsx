@@ -78,8 +78,13 @@ export default function NewChat({
           }
         />
 
-        <div className="h-10 w-40 bg-cover">
-          <img src="/assets/kto_logo.svg" className="h-full w-full object-contain" alt="company-logo-image"/>
+        <div className="flex flex-col items-center">
+          <div className="h-10 w-40 bg-cover">
+            <img src="/assets/KazTransOil.svg" className="h-full w-full object-contain" alt="company-logo-image"/>
+          </div>
+          <p className="mt-0.5 text-center text-[10px] font-medium tracking-wide text-gray-500 dark:text-gray-400">
+            центр исследований и разработок
+          </p>
         </div>
         <div className="flex gap-0.5">
           {headerButtons}
